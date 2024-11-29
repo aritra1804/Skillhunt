@@ -25,12 +25,24 @@ def fetch_udemy_courses(search_term, max_pages=1):
     for page in range(1, max_pages + 1):
         params = {"search": search_term, "page": page, "page_size": 10, "price": "price-paid", "language": "en"}
         response = requests.get(UDEMY_BASE_URL, headers=headers, params=params)
+
+        # Debugging: Print response status and content
+        print(f"Fetching page {page} for '{search_term}'")
+        print(f"Status Code: {response.status_code}")
+
         if response.status_code == 200:
             data = response.json()
+            print("Response Data:", data)  # Debugging: Print response JSON
+
             courses = data.get("results", [])
             if not courses:
-                break
+                break  # Exit loop if no results
             all_courses.extend(courses)
+        else:
+            st.error(f"Error fetching Udemy courses: {response.status_code}")
+            print("Error Response:", response.text)  # Debugging: Print error details
+            break
+
     courses_df = pd.DataFrame(all_courses)
     if not courses_df.empty and "url" in courses_df.columns:
         courses_df["url"] = UDEMY_COURSE_BASE_URL + courses_df["url"]
