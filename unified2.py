@@ -17,7 +17,7 @@ encoded_credentials = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode()).
 headers = {"Authorization": f"Basic {encoded_credentials}", "Accept": "application/json"}
 
 # edX API URL
-EDX_API_URL = "https://www.edx.org/api/v1/catalog/search"
+EDX_API_URL = "https://courses.edx.org/api/courses/v1/courses/"
 
 
 # Udemy Courses Function
@@ -57,13 +57,22 @@ def fetch_coursera_courses(search_term):
 
 
 # edX Courses Function
-def fetch_edx_courses(search_term):
-    params = {"q": search_term}
+def fetch_edx_courses_via_api(search_term):
+    params = {"search": search_term}
     response = requests.get(EDX_API_URL, params=params)
     if response.status_code == 200:
         data = response.json()
-        courses = data.get("objects", [])
-        return pd.DataFrame([{"Title": course.get("title"), "Link": course.get("marketing_url")} for course in courses])
+        courses = data.get("results", [])
+        return pd.DataFrame([
+            {
+                "Title": course.get("name", "N/A"),
+                "Course ID": course.get("id", "N/A"),
+                "Link": course.get("marketing_url", "N/A"),
+                "Start Date": course.get("start", "N/A"),
+                "End Date": course.get("end", "N/A")
+            }
+            for course in courses
+        ])
     else:
         st.error(f"Error fetching edX courses: {response.status_code}")
         return pd.DataFrame()
@@ -85,11 +94,23 @@ def fetch_jobs(keyword):
 
 # Google Trends Function
 def fetch_google_trends(search_term):
+    """
+    Fetch Google Trends data for a given search term.
+
+    Args:
+    search_term (str): The keyword to fetch trends for.
+
+    Returns:
+    pd.DataFrame: A DataFrame containing the trends data.
+    """
     pytrends = TrendReq()
     pytrends.build_payload([search_term], cat=0, timeframe="today 12-m", geo="", gprop="")
     trends = pytrends.interest_over_time()
     if not trends.empty:
         trends.reset_index(inplace=True)
+        trends["date"] = trends["date"].dt.strftime("%Y-%m-%d")  # Format date
+        trends.rename(columns={search_term: "Interest"}, inplace=True)  # Rename column
+        trends.drop(columns=["isPartial"], inplace=True)  # Drop unnecessary columns
         return trends
     else:
         st.warning(f"No Google Trends data found for '{search_term}'")
@@ -147,8 +168,8 @@ with tab3:
 with tab4:
     st.subheader("edX Courses")
     if st.button("Fetch edX Courses"):
-        with st.spinner("Fetching edX courses..."):
-            edx_df = fetch_edx_courses(search_term)
+        with st.spinner("Fetching edX courses via API..."):
+            edx_df = fetch_edx_courses_via_api(search_term)
         if not edx_df.empty:
             st.dataframe(edx_df)
             csv_data = edx_df.to_csv(index=False).encode("utf-8")
@@ -162,8 +183,18 @@ with tab5:
     if st.button("Fetch Trends"):
         with st.spinner("Fetching Google Trends..."):
             trends_df = fetch_google_trends(search_term)
+        
         if not trends_df.empty:
-            st.line_chart(trends_df.set_index("date")[[search_term]])
-            st.write(trends_df)
+            # Display chart with improved formatting
+            st.write("### Interest Over Time")
+            st.line_chart(trends_df.set_index("date")["Interest"], use_container_width=True)
+
+            # Add table with formatted data
+            st.write("### Trends Data")
+            st.dataframe(trends_df.style.format({"Interest": "{:.0f}"}), use_container_width=True)
+
+            # Download button for trends data
+            csv_data = trends_df.to_csv(index=False).encode("utf-8")
+            st.download_button("Download Google Trends Data CSV", csv_data, "google_trends.csv", "text/csv")
         else:
             st.warning("No trends data found.")
