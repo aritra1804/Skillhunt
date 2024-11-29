@@ -5,6 +5,8 @@ import base64
 import pandas as pd
 from bs4 import BeautifulSoup
 from pytrends.request import TrendReq
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # Udemy API Credentials
 CLIENT_ID = "JfHN7pmHzxTDZ4RGe9bqcpqwhxPVmwdLFX2npJ9S"
@@ -87,10 +89,21 @@ def save_to_csv(df):
     else:
         messagebox.showwarning("Warning", "No data to save.")
 
+# Function to display a graph in a Tkinter tab
+def display_graph(tab, df, column, title, xlabel, ylabel):
+    figure = plt.Figure(figsize=(6, 4), dpi=100)
+    ax = figure.add_subplot(111)
+    df[column].value_counts().plot(kind="bar", ax=ax, color="skyblue", edgecolor="black")
+    ax.set_title(title)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    canvas = FigureCanvasTkAgg(figure, tab)
+    canvas.get_tk_widget().pack()
+
 # Tkinter GUI
 root = tk.Tk()
 root.title("Enhanced Learning and Job Finder")
-root.geometry("800x600")
+root.geometry("1000x700")
 
 # Search term input
 search_frame = tk.Frame(root)
@@ -128,6 +141,7 @@ def show_udemy_courses():
             table.insert("", tk.END, values=(row["title"], row["price"], row["url"]))
         save_button = tk.Button(udemy_tab, text="Save to CSV", command=lambda: save_to_csv(courses_df))
         save_button.pack(pady=5)
+        display_graph(udemy_tab, courses_df, "price", "Price Distribution", "Price", "Frequency")
 
 tk.Button(udemy_tab, text="Fetch Udemy Courses", command=show_udemy_courses).pack(pady=10)
 
@@ -169,15 +183,22 @@ def show_trends():
     search_term = search_term_entry.get()
     trends_df = fetch_google_trends(search_term)
     if not trends_df.empty:
-        table = ttk.Treeview(trends_tab, columns=("Date", "Interest"), show="headings")
-        table.heading("Date", text="Date")
-        table.heading("Interest", text="Interest")
-        table.pack(fill="both", expand=1)
-        for _, row in trends_df.iterrows():
-            table.insert("", tk.END, values=(row["date"], row["Interest"]))
+        figure = plt.Figure(figsize=(6, 4), dpi=100)
+        ax = figure.add_subplot(111)
+        ax.plot(trends_df["date"], trends_df["Interest"], marker="o", linestyle="-", color="skyblue")
+        ax.set_title(f"Google Trends for '{search_term}'")
+        ax.set_xlabel("Date")
+        ax.set_ylabel("Interest")
+        ax.tick_params(axis="x", rotation=45)
+        canvas = FigureCanvasTkAgg(figure, trends_tab)
+        canvas.get_tk_widget().pack()
+
+        # Add Save to CSV button
         save_button = tk.Button(trends_tab, text="Save to CSV", command=lambda: save_to_csv(trends_df))
         save_button.pack(pady=5)
 
 tk.Button(trends_tab, text="Fetch Google Trends", command=show_trends).pack(pady=10)
 
+# Run the Tkinter application
 root.mainloop()
+
