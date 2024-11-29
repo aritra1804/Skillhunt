@@ -1,61 +1,74 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+import streamlit as st
+import requests
 import pandas as pd
-import time
 
-# Path to your ChromeDriver
-driver_path = '/Users/aritra/Downloads/chromedriver-mac-x64/chromedriver'  # Update this path
+# Base URL for Coursera API
+COURSERA_API_URL = "https://api.coursera.org/api/courses.v1"
 
-# Set up Selenium WebDriver
-service = Service(driver_path)
-options = webdriver.ChromeOptions()
-options.add_argument('--headless')  # Run in headless mode
-driver = webdriver.Chrome(service=service, options=options)
+# Function to fetch Coursera courses
+def fetch_coursera_courses(search_term):
+    """
+    Fetch courses from the Coursera API based on a search term.
 
-# URL of the "New Business Courses" page
-url = 'https://www.coursera.org/collections/popular-new-business-courses'
+    Args:
+        search_term (str): The keyword to search courses for.
 
-# Open the page
-driver.get(url)
+    Returns:
+        pd.DataFrame: A DataFrame containing course details.
+    """
+    params = {"q": "search", "query": search_term}
+    response = requests.get(COURSERA_API_URL, params=params)
 
-# Allow time for the page to load
-time.sleep(5)
+    if response.status_code == 200:
+        data = response.json()
+        courses = data.get("elements", [])
+        if not courses:
+            return pd.DataFrame()
 
-# Scroll to the bottom to load all courses
-driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-time.sleep(5)  # Wait for additional content to load
+        # Extract relevant information from API response
+        courses_list = []
+        for course in courses:
+            course_data = {
+                "Title": course.get("name", "N/A"),
+                "Course ID": course.get("id", "N/A"),
+                "Slug": course.get("slug", "N/A"),
+                "Link": f"https://www.coursera.org/learn/{course.get('slug', '')}",
+            }
+            courses_list.append(course_data)
 
-# Extract course elements
-courses = driver.find_elements(By.CLASS_NAME, 'css-1d7t1l5')
+        return pd.DataFrame(courses_list)
+    else:
+        st.error(f"Error fetching Coursera courses: {response.status_code}")
+        return pd.DataFrame()
 
-course_data = []
+# Streamlit App Integration
+st.header("Coursera Course Finder")
 
-for course in courses:
-    try:
-        title_element = course.find_element(By.CLASS_NAME, 'css-14f7bde')
-        title = title_element.text
-        link = title_element.get_attribute('href')
-        intro_element = course.find_element(By.CLASS_NAME, 'css-1c66n4l')
-        intro = intro_element.text
-        category = 'Business'  # Since we're in the Business category
-        course_data.append({
-            'Title': title,
-            'URL': link,
-            'Short Introduction': intro,
-            'Category': category
-        })
-    except Exception as e:
-        print(f"Error extracting data for a course: {e}")
+# Input: Search Term
+search_term = st.text_input("Enter Keyword (e.g., Python, Data Science):", value="python")
 
-# Close the driver
-driver.quit()
+# Fetch courses on button click
+if st.button("Search Coursera Courses"):
+    st.write(f"Fetching courses for: {search_term}")
+    with st.spinner("Fetching data..."):
+        coursera_courses_df = fetch_coursera_courses(search_term)
 
-# Save data to a DataFrame
-df = pd.DataFrame(course_data)
-
-# Save DataFrame to CSV
-df.to_csv('new_business_courses.csv', index=False)
-print("Data saved to 'new_business_courses.csv'.")
+    # Display results
+    if not coursera_courses_df.empty:
+        st.success(f"Found {len(coursera_courses_df)} courses on Coursera!")
+        
+        # Clickable links for each course
+        st.write("### Coursera Courses")
+        for _, row in coursera_courses_df.iterrows():
+            st.markdown(f"- **[{row['Title']}]({row['Link']})**  \n  *(Course ID: {row['Course ID']})*")
+        
+        # CSV Download
+        csv_data = coursera_courses_df.to_csv(index=False).encode("utf-8")
+        st.download_button(
+            label="Download Coursera Courses CSV",
+            data=csv_data,
+            file_name="coursera_courses.csv",
+            mime="text/csv",
+        )
+    else:
+        st.warning("No courses found on Coursera for the given keyword.")
