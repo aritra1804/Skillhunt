@@ -16,9 +16,6 @@ UDEMY_COURSE_BASE_URL = "https://www.udemy.com"
 encoded_credentials = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode()).decode()
 headers = {"Authorization": f"Basic {encoded_credentials}", "Accept": "application/json"}
 
-# edX API URL
-EDX_API_URL = "https://courses.edx.org/api/courses/v1/courses/"
-
 
 # Udemy Courses Function
 def fetch_udemy_courses(search_term, max_pages=1):
@@ -56,28 +53,6 @@ def fetch_coursera_courses(search_term):
         return pd.DataFrame()
 
 
-# edX Courses Function
-def fetch_edx_courses_via_api(search_term):
-    params = {"search": search_term}
-    response = requests.get(EDX_API_URL, params=params)
-    if response.status_code == 200:
-        data = response.json()
-        courses = data.get("results", [])
-        return pd.DataFrame([
-            {
-                "Title": course.get("name", "N/A"),
-                "Course ID": course.get("id", "N/A"),
-                "Link": course.get("marketing_url", "N/A"),
-                "Start Date": course.get("start", "N/A"),
-                "End Date": course.get("end", "N/A")
-            }
-            for course in courses
-        ])
-    else:
-        st.error(f"Error fetching edX courses: {response.status_code}")
-        return pd.DataFrame()
-
-
 # We Work Remotely Jobs Function
 def fetch_jobs(keyword):
     base_url = f"https://weworkremotely.com/remote-jobs/search?term={keyword}"
@@ -85,8 +60,8 @@ def fetch_jobs(keyword):
     soup = BeautifulSoup(response.content, "html.parser")
     jobs = []
     for job in soup.find_all("li", class_="feature"):
-        title = job.find("span", class_="title").text if job.find("span", class_="title") else "N/A"
-        company = job.find("span", class_="company").text if job.find("span", class_="company") else "N/A"
+        title = job.find("span", class_="title").text if job.find("span", "title") else "N/A"
+        company = job.find("span", class_="company").text if job.find("span", "company") else "N/A"
         link = "https://weworkremotely.com" + job.find("a")["href"] if job.find("a") else "N/A"
         jobs.append({"Title": title, "Company": company, "Link": link})
     return pd.DataFrame(jobs)
@@ -94,15 +69,6 @@ def fetch_jobs(keyword):
 
 # Google Trends Function
 def fetch_google_trends(search_term):
-    """
-    Fetch Google Trends data for a given search term.
-
-    Args:
-    search_term (str): The keyword to fetch trends for.
-
-    Returns:
-    pd.DataFrame: A DataFrame containing the trends data.
-    """
     pytrends = TrendReq()
     pytrends.build_payload([search_term], cat=0, timeframe="today 12-m", geo="", gprop="")
     trends = pytrends.interest_over_time()
@@ -123,7 +89,7 @@ st.sidebar.header("Search Parameters")
 search_term = st.sidebar.text_input("Enter a keyword (e.g., Python, Data Science, Remote):", value="python")
 max_pages = st.sidebar.slider("Number of Pages to Fetch (Udemy)", min_value=1, max_value=5, value=2)
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["Udemy Courses", "Coursera Courses", "Jobs", "edX Courses", "Google Trends"])
+tab1, tab2, tab3, tab4 = st.tabs(["Udemy Courses", "Coursera Courses", "Jobs", "Google Trends"])
 
 # Udemy Courses Tab
 with tab1:
@@ -164,21 +130,8 @@ with tab3:
         else:
             st.warning("No job listings found.")
 
-# edX Courses Tab
-with tab4:
-    st.subheader("edX Courses")
-    if st.button("Fetch edX Courses"):
-        with st.spinner("Fetching edX courses via API..."):
-            edx_df = fetch_edx_courses_via_api(search_term)
-        if not edx_df.empty:
-            st.dataframe(edx_df)
-            csv_data = edx_df.to_csv(index=False).encode("utf-8")
-            st.download_button("Download edX Courses CSV", csv_data, "edx_courses.csv", "text/csv")
-        else:
-            st.warning("No edX courses found.")
-
 # Google Trends Tab
-with tab5:
+with tab4:
     st.subheader("Google Trends")
     if st.button("Fetch Trends"):
         with st.spinner("Fetching Google Trends..."):
