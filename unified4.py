@@ -119,7 +119,7 @@ if "trends_df" not in st.session_state:
     st.session_state.trends_df = pd.DataFrame()
 
 # Streamlit App
-st.title("Enhanced Learning and Job Finder with Insights")
+st.title("SkillHunt - Enhanced Learning and Job Finder with Insights")
 
 # Sidebar Inputs
 st.sidebar.header("Search Parameters")
