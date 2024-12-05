@@ -116,16 +116,26 @@ streamlit run app.py
 4. Dependencies File 
 - requirements.txt: Contains all dependencies used for the project and helps in installation and running of the project.
 
-## Screenshots
-1. Application Home
+### Screenshots
 
-2. Coursera Courses
+#### 1. Home Page
+![Home Page](project/images/home_img.png)
 
-3. Job Listings
+#### 2. Udemy Course Search
+![Udemy Course Search](project/images/udemy_img.png)
 
-4. Google Trends Visualization
+#### 3. Coursera Course Search
+![Coursera Course Search](project/images/coursera_img.png)
 
-5. Insights & Visualizations
+#### 4. Job Listings
+![Job Listings](project/images/job_img.png)
+
+#### 5. Google Trends Visualization
+![Google Trends Visualization](project/images/trends_img.png)
+
+#### 6. Insights and Visualizations
+![Insights and Visualization](project/images/insights_img.png)
+
 
 ## Video Demonstration
 A video walkthrough of the application is available here:
