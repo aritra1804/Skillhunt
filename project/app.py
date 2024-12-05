@@ -75,16 +75,29 @@ with tab1:
 # Coursera Tab
 with tab2:
     st.subheader("Coursera Courses")
+    max_results = st.sidebar.slider("Number of Results to Fetch (Coursera)", min_value=1, max_value=50, value=10)
+
     if st.button("Fetch Coursera Courses"):
         with st.spinner("Fetching Coursera courses..."):
             df, error = fetch_coursera_courses(search_term)
             if error:
                 st.error(error)
             elif not df.empty:
+                # Clean the data
                 st.session_state.coursera_df = clean_coursera_data(df)
-                st.dataframe(st.session_state.coursera_df.head(10))
+
+                # Limit results to the slider value
+                st.session_state.coursera_df = st.session_state.coursera_df.head(max_results)
+
+                # Add a numbering column
+                st.session_state.coursera_df = st.session_state.coursera_df.reset_index(drop=True)
+                st.session_state.coursera_df.insert(0, "S.No.", range(1, len(st.session_state.coursera_df) + 1))
+
+                # Display without the default index
+                st.dataframe(st.session_state.coursera_df.set_index("S.No."))
             else:
                 st.warning("No Coursera courses found.")
+
 
 # Jobs Tab
 with tab3:
@@ -96,7 +109,7 @@ with tab3:
                 st.error(error)
             elif not df.empty:
                 st.session_state.jobs_df = clean_jobs_data(df)
-                st.dataframe(st.session_state.jobs_df.head(10))
+                st.dataframe(st.session_state.jobs_df)
             else:
                 st.warning("No job listings found.")
 
