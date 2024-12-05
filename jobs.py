@@ -1,3 +1,6 @@
+'''
+This file is responsible for web scraping data from weworkremotely website and saving it as csv.
+'''
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd

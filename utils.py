@@ -1,3 +1,6 @@
+'''
+This file contains salary list and helps in estimating salary based on job roles scraped from weworkremotely website.
+'''
 SALARY_ESTIMATES = {
     "Senior": (100000, 150000),
     "Mid-Level": (70000, 100000),

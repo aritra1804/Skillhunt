@@ -1,3 +1,12 @@
+'''
+1. Aritra Dutta Andrew ID: adutta
+2. Pranav Naik Andrew ID: prnaik
+3. Aditya Jadhav Andrew ID: abjadhav
+4. Yash Sivramkrishnan Andrew ID: ysivramk
+
+This is the main file. It creates a streamlit app for the project. It imports functions from other files such as udemy.py, coursera.py, jobs.py, trends.py .
+'''
+
 import os
 from dotenv import load_dotenv
 import streamlit as st

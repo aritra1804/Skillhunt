@@ -1,3 +1,6 @@
+'''
+This file is responsible for cleaning the scraped data from weworkremotely website and saving it as csv.
+'''
 import pandas as pd
 
 # Load the scraped data

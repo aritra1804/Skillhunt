@@ -34,6 +34,8 @@ Install the following Python packages:
 - `beautifulsoup4`
 - `pytrends`
 - `python-dotenv`
+- `numpy`
+- `seaborn`
 
 Run the command below to install all required packages:
 ```bash

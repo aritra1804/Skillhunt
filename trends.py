@@ -1,3 +1,6 @@
+'''
+This file is responsible for fetching google trends data using the trends API.
+'''
 from pytrends.request import TrendReq
 import pandas as pd
 import time

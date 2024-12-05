@@ -1,3 +1,6 @@
+'''
+This file is responsible for fetching coursera data through the API. It also cleans and visualizes the data.
+'''
 import requests
 import pandas as pd
 import matplotlib.pyplot as plt

@@ -1,3 +1,7 @@
+'''
+This file is responsible for fetching udemy data through the API. It also cleans and visualizes the data.
+
+'''
 import requests
 import pandas as pd
 import time
