@@ -102,6 +102,17 @@ streamlit run app.py
     3. Job Salary Distributions: Histogram of estimated salaries for fetched job listings.
 - Get insights into overall data trends and summaries for Udemy, Coursera, and job searches.
 
+### Important Note for the Insights Tab
+The **Insights & Visualizations** tab depends on data fetched from all the other tabs. Ensure you have successfully fetched data from:
+- Udemy Courses
+- Coursera Courses
+- Jobs with Salaries
+- Google Trends
+
+Only then will the Insights tab be fully functional and display visualizations for the combined data.
+
+If you skip fetching data from any of the tabs, the Insights tab will show warnings or incomplete data.
+
 ## Key Code Files
 1. Main Application File
 - app.py: The main application file integrating all modules and running the Streamlit app.
