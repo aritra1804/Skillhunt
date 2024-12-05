@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 import streamlit as st
+import numpy as np
 from udemy import fetch_udemy_courses, clean_udemy_data, visualize_udemy_data
 from coursera import fetch_coursera_courses, clean_coursera_data, visualize_coursera_data
 from trends import fetch_google_trends, clean_trends_data, visualize_trends_data
@@ -74,8 +75,6 @@ with tab1:
             else:
                 st.warning("No Udemy courses found.")
 
-
-
 # Coursera Tab
 with tab2:
     st.subheader("Coursera Courses")
@@ -101,7 +100,6 @@ with tab2:
                 st.dataframe(st.session_state.coursera_df.set_index("S.No."))
             else:
                 st.warning("No Coursera courses found.")
-
 
 # Jobs Tab
 with tab3:
@@ -129,78 +127,148 @@ with tab3:
             else:
                 st.warning("No job listings found for the entered keyword.")
 
-
 # Google Trends Tab
 with tab4:
     st.subheader("Google Trends")
+    
+    # Option to use backup data
+    use_backup = st.checkbox("Use backup data if rate-limited")
+    
     if st.button("Fetch Google Trends Data"):
         with st.spinner("Fetching Google Trends data..."):
-            st.session_state.trends_df = fetch_google_trends(search_term)
-        if not st.session_state.trends_df.empty:
+            backup_file = "google_trends_backup.csv"  # Path to the backup file
+            if use_backup:
+                st.session_state.trends_df = fetch_google_trends(search_term, backup_file=backup_file)
+            else:
+                st.session_state.trends_df = fetch_google_trends(search_term)
+        
+        if st.session_state.trends_df is not None and not st.session_state.trends_df.empty:
             st.line_chart(st.session_state.trends_df.set_index("date")["Interest"])
         else:
-            st.warning(f"No Google Trends data found for '{search_term}'.")
+            st.warning(f"No Google Trends data available for '{search_term}'.")
+
 
 # Insights & Visualizations Tab
 with tab5:
     st.subheader("Insights & Visualizations")
     if st.button("Generate Insights"):
         # Udemy Insights
-        if not st.session_state.udemy_df.empty:
+        if st.session_state.udemy_df is not None and not st.session_state.udemy_df.empty:
+            st.write("### Udemy Courses Price Analysis")
             if "price" in st.session_state.udemy_df.columns:
-                # Clean and process the price column
-                if "price" in st.session_state.udemy_df.columns:
-                    st.session_state.udemy_df["price"] = (
-                        st.session_state.udemy_df["price"]
-                        .astype(str)  # Convert all values to string
-                        .str.extract(r"(\d+\.?\d*)")  # Extract numeric part
-                        .astype(float, errors="ignore")  # Convert to float
-                    )
-                else:
-                    st.warning("The 'price' column is missing in the dataset.")
-                st.write("### Udemy Courses Price Analysis")
-                st.bar_chart(st.session_state.udemy_df["price"])
-                avg_price = st.session_state.udemy_df["price"].mean()
+                st.session_state.udemy_df["price"] = (
+                    st.session_state.udemy_df["price"]
+                    .astype(str)  # Convert all values to string
+                    .str.extract(r"(\d+\.?\d*)")  # Extract numeric part
+                    .astype(float, errors="ignore")  # Convert to float
+                )
+                avg_price = np.mean(st.session_state.udemy_df["price"])
                 st.write(f"**Average Udemy Course Price:** ${avg_price:.2f}")
+
+                # Subplots for Udemy data
+                fig, ax = plt.subplots(1, 2, figsize=(16, 6))
+
+                # Price Distribution
+                ax[0].hist(
+                    st.session_state.udemy_df["price"], bins=10, color="skyblue", edgecolor="black"
+                )
+                ax[0].set_title("Udemy Course Price Distribution", fontsize=16)
+                ax[0].set_xlabel("Price ($)", fontsize=12)
+                ax[0].set_ylabel("Frequency", fontsize=12)
+
+                # Price Boxplot
+                ax[1].boxplot(st.session_state.udemy_df["price"], vert=False, patch_artist=True)
+                ax[1].set_title("Udemy Course Price Boxplot", fontsize=16)
+                ax[1].set_xlabel("Price ($)", fontsize=12)
+
+                plt.tight_layout()
+                st.pyplot(fig)
             else:
                 st.warning("Price data is not available in Udemy courses.")
         else:
             st.warning("No Udemy data available. Please fetch Udemy courses first.")
 
-        # Google Trends Insights
-        if not st.session_state.trends_df.empty:
-            st.write("### Google Trends Interest Over Time")
-            st.line_chart(st.session_state.trends_df.set_index("date")["Interest"])
-        else:
-            st.warning("No Google Trends data available. Please fetch Google Trends data first.")
-
         # Job Salary Insights
-        if not st.session_state.jobs_df.empty:
-            st.write("### Job Listings Estimated Salary Distribution")
+        if st.session_state.jobs_df is not None and not st.session_state.jobs_df.empty:
+            st.write("### Job Listings Salary Analysis")
             job_salaries = [
                 int(sal.split("-")[0].replace("$", "").replace(",", "")) 
                 for sal in st.session_state.jobs_df["Estimated Salary"] 
                 if sal != "Not Specified"
             ]
             if job_salaries:
-                fig, ax = plt.subplots()
-                ax.hist(job_salaries, bins=10, color="skyblue", edgecolor="black")
-                ax.set_title("Estimated Salary Distribution")
-                ax.set_xlabel("Salary ($)")
-                ax.set_ylabel("Frequency")
+                avg_salary = np.mean(job_salaries)
+                st.write(f"**Average Estimated Job Salary:** ${avg_salary:,.2f}")
+
+                # Subplots for Job Salaries
+                fig, ax = plt.subplots(1, 2, figsize=(16, 6))
+
+                # Salary Distribution
+                ax[0].hist(job_salaries, bins=10, color="orange", edgecolor="black")
+                ax[0].set_title("Job Salary Distribution", fontsize=16)
+                ax[0].set_xlabel("Salary ($)", fontsize=12)
+                ax[0].set_ylabel("Frequency", fontsize=12)
+
+                # Salary Boxplot
+                ax[1].boxplot(job_salaries, vert=False, patch_artist=True)
+                ax[1].set_title("Job Salary Boxplot", fontsize=16)
+                ax[1].set_xlabel("Salary ($)", fontsize=12)
+
+                plt.tight_layout()
                 st.pyplot(fig)
+
+                # Heatmap Example (if relevant numerical data exists)
+                if "title" in st.session_state.jobs_df.columns:
+                    st.write("### Job Listings Heatmap (Dummy Example)")
+                    salary_counts = pd.DataFrame({
+                        "Job Titles": [title[:15] for title in st.session_state.jobs_df["title"]],
+                        "Salaries": job_salaries
+                    }).pivot_table(index="Job Titles", values="Salaries", aggfunc="mean")
+
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    sns.heatmap(
+                        salary_counts, annot=True, cmap="YlGnBu", fmt=".2f", linewidths=.5, ax=ax
+                    )
+                    ax.set_title("Heatmap of Average Salaries by Job Title")
+                    st.pyplot(fig)
+
             else:
                 st.warning("No valid salary data available for visualization.")
         else:
             st.warning("No job data available. Please fetch job listings first.")
 
-        # Combined Insights
-        if not st.session_state.udemy_df.empty and not st.session_state.jobs_df.empty:
-            st.write("### Combined Insights")
-            avg_salary = sum(job_salaries) / len(job_salaries) if job_salaries else 0
-            st.write(f"**Average Estimated Job Salary:** ${avg_salary:,.2f}")
-        if not st.session_state.coursera_df.empty:
-            st.write("### Coursera Courses Summary")
-            st.write(f"**Total Courses Found:** {len(st.session_state.coursera_df)}")
+        # Google Trends Insights
+        if st.session_state.trends_df is not None and not st.session_state.trends_df.empty:
+            st.write("### Google Trends Interest Analysis")
+            trends = st.session_state.trends_df["Interest"]
+            avg_interest = np.mean(trends)
+            max_interest = np.max(trends)
+            min_interest = np.min(trends)
+
+            st.write(f"**Average Interest:** {avg_interest:.2f}")
+            st.write(f"**Peak Interest:** {max_interest}")
+            st.write(f"**Lowest Interest:** {min_interest}")
+
+            # Line Plot for Google Trends
+            fig, ax = plt.subplots(figsize=(10, 6))
+            ax.plot(st.session_state.trends_df["date"], trends, color="orange", marker="o", linestyle="-")
+            ax.set_title("Google Trends Interest Over Time", fontsize=16)
+            ax.set_xlabel("Date", fontsize=12)
+            ax.set_ylabel("Interest", fontsize=12)
+            plt.xticks(rotation=45, fontsize=10)
+            plt.tight_layout()
+            st.pyplot(fig)
         else:
-            st.warning("No Coursera data available. Please fetch Coursera courses first.")
+            st.warning("No Google Trends data available. Please fetch Google Trends data first.")
+
+        # Combined Insights
+        if (
+            st.session_state.udemy_df is not None and not st.session_state.udemy_df.empty and
+            st.session_state.jobs_df is not None and not st.session_state.jobs_df.empty
+        ):
+            st.write("### Combined Insights")
+            avg_salary = np.mean(job_salaries) if job_salaries else 0
+            st.write(f"**Average Estimated Job Salary:** ${avg_salary:,.2f}")
+            st.write(f"**Total Courses Found (Coursera):** {len(st.session_state.coursera_df)}")
+        else:
+            st.warning("No combined data available. Please ensure Udemy, Coursera, Jobs, and Google Trends data are loaded.")
