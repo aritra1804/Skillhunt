@@ -158,7 +158,7 @@ YouTube Link
 
 
 ## Notes
-- Use previously downloaded data if web scraping or API limits result in delays or errors.
+- Use previously downloaded data if web scraping or API limits result in delays or errors for Google trends Tab.
 - Ensure Python and Streamlit are installed and running correctly before executing the application.
 - Check the requirements.txt file to ensure all dependencies are installed.
 - If you encounter an API rate limit, retry after a short delay or reduce the number of fetched pages.
