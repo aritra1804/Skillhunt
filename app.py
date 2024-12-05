@@ -7,6 +7,8 @@ from coursera import fetch_coursera_courses, clean_coursera_data, visualize_cour
 from trends import fetch_google_trends, clean_trends_data, visualize_trends_data
 from jobs import fetch_jobs, clean_jobs_data, visualize_jobs_data
 import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
 
 # Load environment variables from .env file
 load_dotenv()
@@ -156,6 +158,7 @@ with tab5:
         if st.session_state.udemy_df is not None and not st.session_state.udemy_df.empty:
             st.write("### Udemy Courses Price Analysis")
             if "price" in st.session_state.udemy_df.columns:
+                # Clean and process the price column
                 st.session_state.udemy_df["price"] = (
                     st.session_state.udemy_df["price"]
                     .astype(str)  # Convert all values to string
@@ -165,24 +168,24 @@ with tab5:
                 avg_price = np.mean(st.session_state.udemy_df["price"])
                 st.write(f"**Average Udemy Course Price:** ${avg_price:.2f}")
 
-                # Subplots for Udemy data
-                fig, ax = plt.subplots(1, 2, figsize=(16, 6))
-
-                # Price Distribution
-                ax[0].hist(
+                # Plot Udemy price distribution
+                fig1, ax1 = plt.subplots(figsize=(8, 5))
+                ax1.hist(
                     st.session_state.udemy_df["price"], bins=10, color="skyblue", edgecolor="black"
                 )
-                ax[0].set_title("Udemy Course Price Distribution", fontsize=16)
-                ax[0].set_xlabel("Price ($)", fontsize=12)
-                ax[0].set_ylabel("Frequency", fontsize=12)
-
-                # Price Boxplot
-                ax[1].boxplot(st.session_state.udemy_df["price"], vert=False, patch_artist=True)
-                ax[1].set_title("Udemy Course Price Boxplot", fontsize=16)
-                ax[1].set_xlabel("Price ($)", fontsize=12)
-
+                ax1.set_title("Udemy Course Price Distribution", fontsize=16)
+                ax1.set_xlabel("Price ($)", fontsize=12)
+                ax1.set_ylabel("Frequency", fontsize=12)
                 plt.tight_layout()
-                st.pyplot(fig)
+                st.pyplot(fig1)
+
+                # Udemy price boxplot
+                fig2, ax2 = plt.subplots(figsize=(6, 4))
+                ax2.boxplot(st.session_state.udemy_df["price"], vert=False, patch_artist=True)
+                ax2.set_title("Udemy Course Price Boxplot", fontsize=16)
+                ax2.set_xlabel("Price ($)", fontsize=12)
+                plt.tight_layout()
+                st.pyplot(fig2)
             else:
                 st.warning("Price data is not available in Udemy courses.")
         else:
@@ -200,38 +203,22 @@ with tab5:
                 avg_salary = np.mean(job_salaries)
                 st.write(f"**Average Estimated Job Salary:** ${avg_salary:,.2f}")
 
-                # Subplots for Job Salaries
-                fig, ax = plt.subplots(1, 2, figsize=(16, 6))
-
-                # Salary Distribution
-                ax[0].hist(job_salaries, bins=10, color="orange", edgecolor="black")
-                ax[0].set_title("Job Salary Distribution", fontsize=16)
-                ax[0].set_xlabel("Salary ($)", fontsize=12)
-                ax[0].set_ylabel("Frequency", fontsize=12)
-
-                # Salary Boxplot
-                ax[1].boxplot(job_salaries, vert=False, patch_artist=True)
-                ax[1].set_title("Job Salary Boxplot", fontsize=16)
-                ax[1].set_xlabel("Salary ($)", fontsize=12)
-
+                # Plot Job Salary Distribution
+                fig3, ax3 = plt.subplots(figsize=(8, 5))
+                ax3.hist(job_salaries, bins=10, color="orange", edgecolor="black")
+                ax3.set_title("Estimated Job Salary Distribution", fontsize=16)
+                ax3.set_xlabel("Salary ($)", fontsize=12)
+                ax3.set_ylabel("Frequency", fontsize=12)
                 plt.tight_layout()
-                st.pyplot(fig)
+                st.pyplot(fig3)
 
-                # Heatmap Example (if relevant numerical data exists)
-                if "title" in st.session_state.jobs_df.columns:
-                    st.write("### Job Listings Heatmap (Dummy Example)")
-                    salary_counts = pd.DataFrame({
-                        "Job Titles": [title[:15] for title in st.session_state.jobs_df["title"]],
-                        "Salaries": job_salaries
-                    }).pivot_table(index="Job Titles", values="Salaries", aggfunc="mean")
-
-                    fig, ax = plt.subplots(figsize=(10, 6))
-                    sns.heatmap(
-                        salary_counts, annot=True, cmap="YlGnBu", fmt=".2f", linewidths=.5, ax=ax
-                    )
-                    ax.set_title("Heatmap of Average Salaries by Job Title")
-                    st.pyplot(fig)
-
+                # Job Salary Boxplot
+                fig4, ax4 = plt.subplots(figsize=(6, 4))
+                ax4.boxplot(job_salaries, vert=False, patch_artist=True)
+                ax4.set_title("Job Salary Boxplot", fontsize=16)
+                ax4.set_xlabel("Salary ($)", fontsize=12)
+                plt.tight_layout()
+                st.pyplot(fig4)
             else:
                 st.warning("No valid salary data available for visualization.")
         else:
@@ -249,26 +236,45 @@ with tab5:
             st.write(f"**Peak Interest:** {max_interest}")
             st.write(f"**Lowest Interest:** {min_interest}")
 
-            # Line Plot for Google Trends
-            fig, ax = plt.subplots(figsize=(10, 6))
-            ax.plot(st.session_state.trends_df["date"], trends, color="orange", marker="o", linestyle="-")
-            ax.set_title("Google Trends Interest Over Time", fontsize=16)
-            ax.set_xlabel("Date", fontsize=12)
-            ax.set_ylabel("Interest", fontsize=12)
+            # Plot Google Trends Interest Over Time
+            fig5, ax5 = plt.subplots(figsize=(10, 6))
+            ax5.plot(st.session_state.trends_df["date"], trends, color="orange", marker="o", linestyle="-")
+            ax5.set_title("Google Trends Interest Over Time", fontsize=16)
+            ax5.set_xlabel("Date", fontsize=12)
+            ax5.set_ylabel("Interest", fontsize=12)
             plt.xticks(rotation=45, fontsize=10)
             plt.tight_layout()
-            st.pyplot(fig)
+            st.pyplot(fig5)
         else:
             st.warning("No Google Trends data available. Please fetch Google Trends data first.")
 
-        # Combined Insights
-        if (
-            st.session_state.udemy_df is not None and not st.session_state.udemy_df.empty and
-            st.session_state.jobs_df is not None and not st.session_state.jobs_df.empty
-        ):
-            st.write("### Combined Insights")
-            avg_salary = np.mean(job_salaries) if job_salaries else 0
-            st.write(f"**Average Estimated Job Salary:** ${avg_salary:,.2f}")
-            st.write(f"**Total Courses Found (Coursera):** {len(st.session_state.coursera_df)}")
+        # Heatmap for Correlations
+        st.write("### Correlation Heatmap")
+        correlation_data = pd.DataFrame()
+
+        # Add Udemy prices
+        if st.session_state.udemy_df is not None and "price" in st.session_state.udemy_df.columns:
+            correlation_data["Udemy Prices"] = st.session_state.udemy_df["price"]
+
+        # Add Job Salaries
+        if job_salaries:
+            # Ensure the length matches by trimming or padding with NaN
+            job_salaries_series = pd.Series(job_salaries)
+            correlation_data["Job Salaries"] = job_salaries_series.reindex(correlation_data.index).reset_index(drop=True)
+
+        # Add Google Trends Interest
+        if st.session_state.trends_df is not None and "Interest" in st.session_state.trends_df.columns:
+            # Ensure the length matches by trimming or padding with NaN
+            trends_series = pd.Series(st.session_state.trends_df["Interest"].values)
+            correlation_data["Google Trends Interest"] = trends_series.reindex(correlation_data.index).reset_index(drop=True)
+
+        # Generate heatmap if data exists
+        if not correlation_data.empty and correlation_data.shape[1] > 1:  # Ensure there are at least two columns to correlate
+            correlation_matrix = correlation_data.corr()
+            fig6, ax6 = plt.subplots(figsize=(8, 5))
+            sns.heatmap(correlation_matrix, annot=True, cmap="coolwarm", ax=ax6)
+            ax6.set_title("Correlation Heatmap", fontsize=16)
+            plt.tight_layout()
+            st.pyplot(fig6)
         else:
-            st.warning("No combined data available. Please ensure Udemy, Coursera, Jobs, and Google Trends data are loaded.")
+            st.warning("Not enough data to generate a correlation heatmap.")
