@@ -147,7 +147,7 @@ If you skip fetching data from any of the tabs, the Insights tab will show warni
 
 ## Video Demonstration
 A video walkthrough of the application is available here:
-YouTube Link
+https://youtu.be/micikAl75f8 
 
 ## Group Members
 1. Aritra Dutta Andrew ID: adutta
