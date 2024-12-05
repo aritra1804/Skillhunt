@@ -59,7 +59,7 @@ pip install -r requirements.txt
 ```bash
 streamlit run app.py
 ```
-2. Open the URL provided by Streamlit (usually http://localhost:8502) in your browser.
+2. Open the URL provided by Streamlit (usually http://localhost:8501) in your browser.
 
 ## How to Use
 ### Search Paramters
