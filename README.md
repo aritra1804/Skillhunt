@@ -102,3 +102,41 @@ streamlit run app.py
     3. Job Salary Distributions: Histogram of estimated salaries for fetched job listings.
 - Get insights into overall data trends and summaries for Udemy, Coursera, and job searches.
 
+## Key Code Files
+1. Main Application File
+- app.py: The main application file integrating all modules and running the Streamlit app.
+2. Modules
+- udemy.py: Fetches and processes Udemy course data using the Udemy API.
+- coursera.py: Fetches and processes Coursera course data using their public API.
+- jobs.py: Scrapes job listings from We Work Remotely.
+- trends.py: Fetches and visualizes Google Trends data.
+- utils.py: Contains helper functions, including salary estimation logic.
+3. Environment File
+- .env: Stores API credentials for secure access to Udemy API.
+4. Dependencies File 
+- requirements.txt: Contains all dependencies used for the project and helps in installation and running of the project.
+
+## Screenshots
+1. Application Home
+
+2. Coursera Courses
+
+3. Job Listings
+
+4. Google Trends Visualization
+
+5. Insights & Visualizations
+
+## Video Demonstration
+A video walkthrough of the application is available here:
+YouTube Link
+
+## Group Members
+Name: Aritra Dutta Andrew ID: adutta
+
+
+## Notes
+- Use previously downloaded data if web scraping or API limits result in delays or errors.
+- Ensure Python and Streamlit are installed and running correctly before executing the application.
+- Check the requirements.txt file to ensure all dependencies are installed.
+- If you encounter an API rate limit, retry after a short delay or reduce the number of fetched pages.
