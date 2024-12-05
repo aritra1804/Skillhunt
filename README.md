@@ -150,7 +150,11 @@ A video walkthrough of the application is available here:
 YouTube Link
 
 ## Group Members
-Name: Aritra Dutta Andrew ID: adutta
+1. Aritra Dutta Andrew ID: adutta
+2. Pranav Naik Andrew ID: prnaik
+3. Aditya Jadhav Andrew ID: abjadhav
+4. Yash Sivramkrishnan Andrew ID: ysivramk
+
 
 
 ## Notes
