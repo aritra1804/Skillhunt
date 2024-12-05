@@ -58,11 +58,19 @@ with tab1:
             if error:
                 st.error(error)
             elif not df.empty:
-            # Clean the data
+                # Clean the data
                 st.session_state.udemy_df = clean_udemy_data(df)
-                st.dataframe(st.session_state.udemy_df[["title", "url", "price"]].head(10))
+
+                # Add a numbering column and reset index
+                st.session_state.udemy_df = st.session_state.udemy_df.reset_index(drop=True)
+                st.session_state.udemy_df.insert(0, "S.No.", range(1, len(st.session_state.udemy_df) + 1))
+
+                # Display without the default index
+                st.dataframe(st.session_state.udemy_df.set_index("S.No.")[["title", "url", "price"]])
             else:
                 st.warning("No Udemy courses found.")
+
+
 
 # Coursera Tab
 with tab2:
@@ -113,10 +121,10 @@ with tab5:
                 # Clean and process the price column
                 if "price" in st.session_state.udemy_df.columns:
                     st.session_state.udemy_df["price"] = (
-                    st.session_state.udemy_df["price"]
-                    .astype(str)  # Convert all values to string
-                    .str.extract(r"(\d+\.?\d*)")  # Extract numeric part
-                    .astype(float, errors="ignore")  # Convert to float
+                        st.session_state.udemy_df["price"]
+                        .astype(str)  # Convert all values to string
+                        .str.extract(r"(\d+\.?\d*)")  # Extract numeric part
+                        .astype(float, errors="ignore")  # Convert to float
                     )
                 else:
                     st.warning("The 'price' column is missing in the dataset.")

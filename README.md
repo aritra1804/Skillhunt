@@ -37,4 +37,33 @@ Install the following Python packages:
 
 Run the command below to install all required packages:
 ```bash
-pip install -r requirements.txt
+pip install -r requirements.txt 
+```
+## Installation Instructions
+
+1. Download the project as a zip file.
+2. Locate the downloaded zip file on your computer.
+3. Extract it to a folder of your choice.
+4. Navigate to the extracted folder in your terminal or command prompt:
+```bash
+cd path/to/extracted/folder
+```
+5. Install the required packages:
+```bash
+pip install -r requirements.txt 
+```
+
+## Running the Application 
+
+1. Run the Streamlit app:
+```bash
+streamlit run app.py
+```
+2. Open the URL provided by Streamlit (usually http://localhost:8502) in your browser.
+
+## How to Use
+### Search Paramters
+1. Enter a Keyword: For example, "Python" or "Java".
+2. Adjust the Number of Pages: This controls how many pages of Udemy courses to fetch.
+
+
