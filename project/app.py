@@ -102,16 +102,29 @@ with tab2:
 # Jobs Tab
 with tab3:
     st.subheader("Job Listings with Estimated Salaries")
-    if st.button("Fetch Jobs"):
+    
+    # Separate search for jobs
+    job_search_term = st.text_input("Enter a keyword for job search (e.g., Developer, Data Scientist):", value="developer")
+    max_jobs = st.slider("Number of Results to Fetch (Jobs)", min_value=1, max_value=50, value=10)
+    
+    if st.button("Search Jobs"):
         with st.spinner("Fetching job listings..."):
-            df, error = fetch_jobs(search_term)
+            df, error = fetch_jobs(job_search_term)
             if error:
                 st.error(error)
             elif not df.empty:
-                st.session_state.jobs_df = clean_jobs_data(df)
-                st.dataframe(st.session_state.jobs_df)
+                # Limit results based on the slider value
+                st.session_state.jobs_df = clean_jobs_data(df).head(max_jobs)
+
+                # Add a numbering column
+                st.session_state.jobs_df = st.session_state.jobs_df.reset_index(drop=True)
+                st.session_state.jobs_df.insert(0, "S.No.", range(1, len(st.session_state.jobs_df) + 1))
+
+                # Display without the default index
+                st.dataframe(st.session_state.jobs_df.set_index("S.No."))
             else:
-                st.warning("No job listings found.")
+                st.warning("No job listings found for the entered keyword.")
+
 
 # Google Trends Tab
 with tab4:
