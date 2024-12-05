@@ -63,7 +63,42 @@ streamlit run app.py
 
 ## How to Use
 ### Search Paramters
-1. Enter a Keyword: For example, "Python" or "Java".
-2. Adjust the Number of Pages: This controls how many pages of Udemy courses to fetch.
+1. Keyword Search for Courses:
 
+- Enter a keyword in the "Enter a keyword (e.g., Python, Data Science)" input field under the Search Parameters sidebar.
+- Adjust the Number of Pages slider to determine how many pages of Udemy courses to fetch.
+2. Separate Job Search:
+
+- Enter a keyword specific to job searches in the "Enter a keyword for job search (e.g., Developer, Data Scientist)" input field in the Jobs with Salaries tab.
+- Adjust the Number of Results to Fetch (Jobs) slider to limit the number of job results fetched.
+- Click the Search Jobs button to fetch and display job listings.
+
+### Tabs
+1. Udemy Courses:
+
+- Fetch and explore Udemy courses related to the entered keyword.
+- The fetched results will include course titles, URLs, and prices.
+
+2. Coursera Courses:
+
+- Search for Coursera courses based on the entered keyword.
+- Results include course titles and links to the course pages.
+
+3. Jobs with Salaries:
+
+- Use the dedicated job search input to find jobs with estimated salaries based on your entered keyword.
+- The fetched results include job titles, company names, URLs, and estimated salary ranges.
+
+4. Google Trends:
+
+- Analyze trends for the entered keyword over the last 12 months using Google Trends data.
+- Results are visualized as a line chart showing the popularity of the keyword over time.
+
+5. Insights & Visualizations:
+
+- View combined visualizations for fetched data:
+    1. Udemy Course Prices: Distribution of course prices and the average price.
+    2. Google Trends: Popularity trends for the entered keyword.
+    3. Job Salary Distributions: Histogram of estimated salaries for fetched job listings.
+- Get insights into overall data trends and summaries for Udemy, Coursera, and job searches.
 
