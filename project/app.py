@@ -33,6 +33,10 @@ if "trends_df" not in st.session_state:
     st.session_state.trends_df = None
 
 # Streamlit App
+# Set custom page title
+st.set_page_config(
+    page_title="SkillHunt"
+)
 st.title("SkillHunt - Enhanced Learning and Job Finder with Insights")
 
 # Sidebar Inputs
